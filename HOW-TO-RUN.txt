@@ -1,0 +1,57 @@
+# MNTU OMNYAMA — HOW TO RUN YOUR APP
+# By Isidima Vuka Sizwe Sakuthi
+# =====================================
+
+## STEP 1 — Install Node.js
+- Go to: https://nodejs.org
+- Download the LTS version
+- Install it (Next, Next, Finish)
+
+## STEP 2 — Add your API Key
+- Open the file called: .env
+- Find this line: REPLICATE_API_TOKEN=paste-your-r8-key-here
+- Replace "paste-your-r8-key-here" with your actual key from Replicate
+- Save the file
+
+## STEP 3 — Open the Terminal
+- Press Windows key + R
+- Type: cmd
+- Press Enter
+- A black window will open — that is your terminal
+
+## STEP 4 — Go to your app folder
+Type this and press Enter:
+  cd Desktop\mntu-omnyama
+
+## STEP 5 — Install the app dependencies
+Type this and press Enter:
+  npm install
+
+Wait for it to finish (about 1 minute)
+
+## STEP 6 — Start your app
+Type this and press Enter:
+  npm start
+
+You will see:
+  ╔════════════════════════════════════════╗
+  ║   MNTU OMNYAMA — Server Running        ║
+  ║   http://localhost:3000                ║
+  ╚════════════════════════════════════════╝
+
+## STEP 7 — Open your app
+- Open your browser (Chrome, Edge, Firefox)
+- Go to: http://localhost:3000
+- YOUR APP IS LIVE! 👑
+
+## TO DEPLOY ONLINE (Vercel)
+1. Go to vercel.com and log in
+2. Click "Add New Project"
+3. Upload your mntu-omnyama folder
+4. Add environment variable: REPLICATE_API_TOKEN = your key
+5. Click Deploy
+6. You get a live URL to share with the world!
+
+## NEED HELP?
+Come back to Claude and say: "I need help with step X"
+I will help you immediately. 👑🌍🔥

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mntu Omnyama — Reclaim Your Royalty</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #C9932A;
+    --gold-light: #E8B84B;
+    --gold-dim: #7A5A18;
+    --black: #080706;
+    --black-2: #111009;
+    --black-3: #1A1814;
+    --cream: #F2E8D5;
+    --cream-dim: #BFB08A;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,147,42,0.03) 40px,rgba(201,147,42,0.03) 41px),
+      repeating-linear-gradient(-45deg,transparent,transparent 40px,rgba(201,147,42,0.03) 40px,rgba(201,147,42,0.03) 41px);
+    pointer-events:none; z-index:0;
+  }
+  .screen { display:none; position:relative; z-index:1; }
+  .screen.active { display:block; }
+
+  /* SPLASH */
+  #screen-splash {
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:40px 24px; text-align:center;
+    animation:fadeIn 1.2s ease;
+  }
+  .brand-eye {
+    width:80px; height:80px; border:1.5px solid var(--gold);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    margin-bottom:28px; position:relative;
+    animation:pulse 3s ease-in-out infinite;
+  }
+  .brand-eye::before {
+    content:''; position:absolute;
+    width:56px; height:56px;
+    border:1px solid rgba(201,147,42,0.4); border-radius:50%;
+  }
+  .brand-eye-inner { width:24px; height:24px; background:var(--gold); border-radius:50%; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(201,147,42,0.3)} 50%{box-shadow:0 0 0 12px rgba(201,147,42,0)} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  .app-title { font-family:'Cinzel Decorative',serif; font-size:32px; color:var(--gold); letter-spacing:2px; line-height:1.2; margin-bottom:8px; }
+  .app-subtitle { font-family:'Cinzel',serif; font-size:11px; letter-spacing:6px; color:var(--gold-dim); margin-bottom:20px; }
+  .app-tagline { font-size:20px; font-style:italic; color:var(--cream-dim); font-weight:300; max-width:300px; line-height:1.6; margin-bottom:48px; }
+
+  .divider { display:flex; align-items:center; gap:12px; width:100%; max-width:320px; margin:0 auto 32px; }
+  .divider-line { flex:1; height:1px; background:rgba(201,147,42,0.3); }
+  .divider-diamond { width:8px; height:8px; background:var(--gold); transform:rotate(45deg); opacity:0.7; }
+
+  .bead-border { display:flex; justify-content:center; gap:6px; margin:24px auto; max-width:320px; }
+  .bead { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+  .btn-primary {
+    background:var(--gold); color:var(--black); border:none;
+    padding:16px 48px; font-family:'Cinzel',serif; font-size:13px;
+    font-weight:600; letter-spacing:4px; text-transform:uppercase;
+    cursor:pointer; transition:all 0.3s ease;
+    width:100%; max-width:320px; margin-bottom:16px;
+  }
+  .btn-primary:hover { background:var(--gold-light); transform:translateY(-1px); }
+  .btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+
+  .btn-ghost {
+    background:transparent; color:var(--cream-dim);
+    border:1px solid rgba(201,147,42,0.3);
+    padding:14px 48px; font-family:'Cinzel',serif; font-size:12px;
+    letter-spacing:3px; text-transform:uppercase; cursor:pointer;
+    transition:all 0.3s ease; width:100%; max-width:320px;
+  }
+  .btn-ghost:hover { border-color:var(--gold); color:var(--gold); }
+  .isidima-credit { margin-top:40px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; color:rgba(201,147,42,0.35); }
+
+  /* STYLE SELECT */
+  #screen-style { min-height:100vh; padding:48px 24px 40px; animation:slideUp 0.6s ease; }
+  .screen-header { text-align:center; margin-bottom:36px; }
+  .screen-step { font-family:'Cinzel',serif; font-size:10px; letter-spacing:5px; color:var(--gold-dim); margin-bottom:12px; }
+  .screen-title { font-family:'Cinzel',serif; font-size:22px; color:var(--gold); margin-bottom:8px; }
+  .screen-desc { font-size:16px; font-style:italic; color:var(--cream-dim); font-weight:300; }
+
+  .style-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:480px; margin:0 auto 36px; }
+  .style-card {
+    border:1px solid rgba(201,147,42,0.25); padding:24px 16px;
+    text-align:center; cursor:pointer; transition:all 0.3s ease;
+    position:relative; background:var(--black-3);
+  }
+  .style-card:hover { border-color:var(--gold); background:#1F1C14; }
+  .style-card.selected { border-color:var(--gold); background:#1F1C14; }
+  .style-card.selected::after { content:'✦'; position:absolute; top:10px; right:12px; color:var(--gold); font-size:12px; }
+  .style-icon { font-size:36px; margin-bottom:12px; display:block; }
+  .style-name { font-family:'Cinzel',serif; font-size:12px; color:var(--gold); letter-spacing:1px; margin-bottom:6px; }
+  .style-desc { font-size:13px; color:var(--cream-dim); font-style:italic; line-height:1.4; }
+
+  /* UPLOAD */
+  #screen-upload { min-height:100vh; padding:48px 24px 40px; animation:slideUp 0.6s ease; }
+  .selected-style-badge {
+    display:flex; align-items:center; gap:12px; max-width:480px;
+    margin:0 auto 28px; padding:14px 20px;
+    border:1px solid rgba(201,147,42,0.3); background:var(--black-3);
+  }
+  .badge-dot { width:8px; height:8px; background:var(--gold); transform:rotate(45deg); flex-shrink:0; }
+  .badge-text { font-family:'Cinzel',serif; font-size:12px; color:var(--gold); letter-spacing:2px; }
+
+  .upload-zone {
+    border:1px dashed rgba(201,147,42,0.4); padding:48px 24px;
+    text-align:center; cursor:pointer; transition:all 0.3s ease;
+    max-width:480px; margin:0 auto 28px; background:var(--black-3); position:relative;
+  }
+  .upload-zone:hover { border-color:var(--gold); background:#1A1814; }
+  .upload-zone.has-image { border-style:solid; border-color:var(--gold); padding:0; }
+  .upload-icon { font-size:48px; margin-bottom:16px; opacity:0.6; }
+  .upload-text { font-family:'Cinzel',serif; font-size:13px; color:var(--gold); letter-spacing:2px; margin-bottom:8px; }
+  .upload-sub { font-size:14px; color:var(--cream-dim); font-style:italic; }
+  #file-input { display:none; }
+  .preview-img { width:100%; max-height:350px; object-fit:cover; display:none; }
+  .preview-img.visible { display:block; }
+
+  /* PAYMENT */
+  #screen-payment { min-height:100vh; padding:48px 24px 40px; animation:slideUp 0.6s ease; }
+  .order-summary { max-width:480px; margin:0 auto 28px; border:1px solid rgba(201,147,42,0.25); background:var(--black-3); overflow:hidden; }
+  .order-header { background:rgba(201,147,42,0.1); padding:16px 20px; border-bottom:1px solid rgba(201,147,42,0.2); font-family:'Cinzel',serif; font-size:11px; letter-spacing:4px; color:var(--gold); }
+  .order-row { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid rgba(201,147,42,0.1); font-size:15px; }
+  .order-row:last-child { border-bottom:none; }
+  .order-label { color:var(--cream-dim); font-style:italic; }
+  .order-value { font-family:'Cinzel',serif; color:var(--gold); font-size:14px; }
+  .order-total .order-label { color:var(--cream); font-style:normal; font-weight:600; }
+  .order-total .order-value { font-size:18px; color:var(--gold-light); }
+
+  .payment-form { max-width:480px; margin:0 auto 28px; }
+  .form-label { font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; color:var(--gold-dim); display:block; margin-bottom:8px; text-transform:uppercase; }
+  .form-input { width:100%; background:var(--black-3); border:1px solid rgba(201,147,42,0.25); color:var(--cream); padding:14px 16px; font-family:'Cormorant Garamond',serif; font-size:16px; margin-bottom:20px; outline:none; transition:border-color 0.3s; }
+  .form-input:focus { border-color:var(--gold); }
+  .form-input::placeholder { color:rgba(242,232,213,0.3); }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  /* GENERATING */
+  #screen-generating {
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:40px 24px; text-align:center; animation:fadeIn 0.6s ease;
+  }
+  .generating-ring {
+    width:120px; height:120px;
+    border:1px solid rgba(201,147,42,0.2);
+    border-top:2px solid var(--gold); border-radius:50%;
+    animation:spin 2s linear infinite; margin-bottom:32px; position:relative;
+  }
+  .generating-ring::after {
+    content:''; position:absolute; inset:12px;
+    border:1px solid rgba(201,147,42,0.15);
+    border-bottom:1px solid var(--gold-dim); border-radius:50%;
+    animation:spin 3s linear infinite reverse;
+  }
+  .generating-title { font-family:'Cinzel',serif; font-size:18px; color:var(--gold); letter-spacing:2px; margin-bottom:12px; }
+  .generating-sub { font-size:17px; font-style:italic; color:var(--cream-dim); max-width:280px; line-height:1.6; margin-bottom:32px; }
+  .progress-bar-outer { width:280px; height:2px; background:rgba(201,147,42,0.15); margin-bottom:16px; }
+  .progress-bar-inner { height:100%; background:var(--gold); width:0%; transition:width 0.8s ease; }
+  .progress-text { font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px; color:var(--gold-dim); }
+
+  /* RESULT */
+  #screen-result { min-height:100vh; padding:48px 24px 40px; animation:slideUp 0.6s ease; }
+  .result-frame { max-width:480px; margin:0 auto 28px; border:1px solid rgba(201,147,42,0.4); position:relative; background:var(--black-3); }
+  .result-frame::before,.result-frame::after { content:'✦'; position:absolute; color:var(--gold); font-size:14px; opacity:0.6; }
+  .result-frame::before { top:12px; left:16px; }
+  .result-frame::after { bottom:12px; right:16px; }
+  .result-portrait { width:100%; display:block; }
+  .result-caption { padding:20px; border-top:1px solid rgba(201,147,42,0.2); text-align:center; }
+  .result-style-name { font-family:'Cinzel',serif; font-size:13px; color:var(--gold); letter-spacing:3px; margin-bottom:6px; }
+  .result-brand { font-size:13px; font-style:italic; color:var(--cream-dim); }
+
+  .action-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:480px; margin:0 auto 16px; }
+  .btn-share { background:transparent; border:1px solid var(--gold); color:var(--gold); padding:14px; font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; }
+  .btn-share:hover { background:rgba(201,147,42,0.1); }
+
+  .back-btn { background:none; border:none; color:var(--gold-dim); font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px; cursor:pointer; padding:0 0 32px 0; display:flex; align-items:center; gap:8px; transition:color 0.2s; }
+  .back-btn:hover { color:var(--gold); }
+  .btn-wrap { max-width:480px; margin:0 auto; }
+
+  .error-msg { max-width:480px; margin:0 auto 20px; padding:14px 20px; border:1px solid rgba(220,50,50,0.4); background:rgba(220,50,50,0.1); color:#ff6b6b; font-size:14px; font-style:italic; display:none; }
+  .error-msg.visible { display:block; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="screen-splash" class="screen active">
+  <div class="brand-eye"><div class="brand-eye-inner"></div></div>
+  <div class="app-title">Mntu<br/>Omnyama</div>
+  <div class="app-subtitle">By Isidima · Vuka Sizwe Sakuthi</div>
+  <p class="app-tagline">Reclaim your royalty.<br/>See yourself as your ancestors did.</p>
+  <div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+  <div class="bead-border">
+    <div class="bead" style="background:#E63946"></div>
+    <div class="bead" style="background:#C9932A"></div>
+    <div class="bead" style="background:#2A9D8F"></div>
+    <div class="bead" style="background:#E9C46A"></div>
+    <div class="bead" style="background:#fff;opacity:0.6"></div>
+    <div class="bead" style="background:#264653"></div>
+    <div class="bead" style="background:#E63946"></div>
+    <div class="bead" style="background:#C9932A"></div>
+    <div class="bead" style="background:#2A9D8F"></div>
+    <div class="bead" style="background:#E9C46A"></div>
+    <div class="bead" style="background:#fff;opacity:0.6"></div>
+    <div class="bead" style="background:#264653"></div>
+  </div>
+  <button class="btn-primary" onclick="goTo('screen-style')">BEGIN YOUR PORTRAIT</button>
+  <div class="isidima-credit">✦ ISIDIMA · EASTERN CAPE · SOUTH AFRICA ✦</div>
+</div>
+
+<!-- STYLE SELECT -->
+<div id="screen-style" class="screen">
+  <button class="back-btn" onclick="goTo('screen-splash')">← BACK</button>
+  <div class="screen-header">
+    <div class="screen-step">STEP 01 OF 03</div>
+    <div class="screen-title">Choose Your Ancestry</div>
+    <p class="screen-desc">Who were your people before the world forgot?</p>
+  </div>
+  <div class="style-grid">
+    <div class="style-card" onclick="selectStyle(this,'Xhosa Warrior')">
+      <span class="style-icon">🛡️</span>
+      <div class="style-name">Xhosa Warrior</div>
+      <div class="style-desc">Umqhele, spear & leopard skin. Eastern Cape pride.</div>
+    </div>
+    <div class="style-card" onclick="selectStyle(this,'African Royalty')">
+      <span class="style-icon">👑</span>
+      <div class="style-name">African Royalty</div>
+      <div class="style-desc">King or Queen. Robes, crown, beads of power.</div>
+    </div>
+    <div class="style-card" onclick="selectStyle(this,'Ndebele Royalty')">
+      <span class="style-icon">🔶</span>
+      <div class="style-name">Ndebele Royalty</div>
+      <div class="style-desc">Geometric beadwork, neck rings, vivid colour.</div>
+    </div>
+    <div class="style-card" onclick="selectStyle(this,'Zulu Chief')">
+      <span class="style-icon">⚔️</span>
+      <div class="style-name">Zulu Chief</div>
+      <div class="style-desc">Isicoco, isiZulu regalia, the spirit of uShaka.</div>
+    </div>
+  </div>
+  <div class="btn-wrap">
+    <button class="btn-primary" id="btn-style-next" onclick="goTo('screen-upload')" disabled>CHOOSE A STYLE ABOVE</button>
+  </div>
+</div>
+
+<!-- UPLOAD -->
+<div id="screen-upload" class="screen">
+  <button class="back-btn" onclick="goTo('screen-style')">← BACK</button>
+  <div class="screen-header">
+    <div class="screen-step">STEP 02 OF 03</div>
+    <div class="screen-title">Upload Your Photo</div>
+    <p class="screen-desc">A clear photo of your face. The ancestors will do the rest.</p>
+  </div>
+  <div class="selected-style-badge">
+    <div class="badge-dot"></div>
+    <div class="badge-text" id="badge-style-name">No style selected</div>
+  </div>
+  <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+    <input type="file" id="file-input" accept="image/*" onchange="handleFile(this)"/>
+    <div id="upload-placeholder">
+      <div class="upload-icon">◈</div>
+      <div class="upload-text">TAP TO UPLOAD</div>
+      <div class="upload-sub">Your photo stays private. Never shared.</div>
+    </div>
+    <img id="preview-img" class="preview-img" alt="Your photo"/>
+  </div>
+  <div class="btn-wrap">
+    <button class="btn-primary" id="btn-upload-next" onclick="goTo('screen-payment')" disabled>UPLOAD A PHOTO FIRST</button>
+  </div>
+</div>
+
+<!-- PAYMENT -->
+<div id="screen-payment" class="screen">
+  <button class="back-btn" onclick="goTo('screen-upload')">← BACK</button>
+  <div class="screen-header">
+    <div class="screen-step">STEP 03 OF 03</div>
+    <div class="screen-title">Your Portrait</div>
+    <p class="screen-desc">One payment. Yours forever.</p>
+  </div>
+  <div class="order-summary">
+    <div class="order-header">ORDER SUMMARY</div>
+    <div class="order-row"><span class="order-label">Portrait style</span><span class="order-value" id="order-style">—</span></div>
+    <div class="order-row"><span class="order-label">High resolution download</span><span class="order-value">✦ Included</span></div>
+    <div class="order-row"><span class="order-label">Print ready (A3)</span><span class="order-value">✦ Included</span></div>
+    <div class="order-row order-total"><span class="order-label">Total</span><span class="order-value">$3.00 USD</span></div>
+  </div>
+  <div class="payment-form">
+    <label class="form-label">Name on card</label>
+    <input class="form-input" type="text" id="card-name" placeholder="Your full name"/>
+    <label class="form-label">Card number</label>
+    <input class="form-input" type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19"/>
+    <div class="form-row">
+      <div><label class="form-label">Expiry</label><input class="form-input" type="text" placeholder="MM / YY" maxlength="7"/></div>
+      <div><label class="form-label">CVV</label><input class="form-input" type="text" placeholder="123" maxlength="3"/></div>
+    </div>
+  </div>
+  <div class="error-msg" id="error-msg">Something went wrong. Please try again.</div>
+  <div class="btn-wrap">
+    <button class="btn-primary" id="btn-pay" onclick="startGenerate()">PAY $3.00 · GENERATE PORTRAIT</button>
+  </div>
+</div>
+
+<!-- GENERATING -->
+<div id="screen-generating" class="screen">
+  <div class="generating-ring"></div>
+  <div class="generating-title">Summoning Your Ancestors</div>
+  <p class="generating-sub" id="generating-sub">We are adorning you in the colours of your people...</p>
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
+  <div class="progress-text" id="progress-text">PREPARING YOUR PORTRAIT</div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="screen-header">
+    <div class="screen-step">YOUR PORTRAIT IS READY</div>
+    <div class="screen-title">Uyindoda / Uyinkosazana</div>
+    <p class="screen-desc">You have always been royalty.</p>
+  </div>
+  <div class="result-frame">
+    <img id="result-portrait" class="result-portrait" alt="Your ancestral portrait"/>
+    <div class="result-caption">
+      <div class="result-style-name" id="result-style-name">XHOSA WARRIOR</div>
+      <div class="result-brand">Mntu Omnyama · by Isidima</div>
+    </div>
+  </div>
+  <div class="action-row">
+    <button class="btn-share" id="btn-download" onclick="downloadPortrait()">⬇ DOWNLOAD</button>
+    <button class="btn-share" onclick="sharePortrait()">↗ SHARE</button>
+  </div>
+  <div class="btn-wrap">
+    <button class="btn-primary" onclick="goTo('screen-style')">CREATE ANOTHER PORTRAIT</button>
+    <br/><br/>
+    <button class="btn-ghost" onclick="goTo('screen-splash')">HOME</button>
+  </div>
+  <div style="text-align:center;margin-top:32px;">
+    <div class="isidima-credit">✦ ISIDIMA · VUKA SIZWE SAKUTHI ✦</div>
+  </div>
+</div>
+
+<script>
+  let selectedStyle = '';
+  let uploadedFile = null;
+  let generatedImageUrl = '';
+
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function selectStyle(card, name) {
+    document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedStyle = name;
+    document.getElementById('badge-style-name').textContent = name.toUpperCase();
+    document.getElementById('order-style').textContent = name;
+    document.getElementById('result-style-name').textContent = name.toUpperCase();
+    const btn = document.getElementById('btn-style-next');
+    btn.textContent = 'CONTINUE WITH ' + name.toUpperCase();
+    btn.disabled = false;
+  }
+
+  function handleFile(input) {
+    if (input.files && input.files[0]) {
+      uploadedFile = input.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById('preview-img');
+        img.src = e.target.result;
+        img.classList.add('visible');
+        document.getElementById('upload-placeholder').style.display = 'none';
+        document.getElementById('upload-zone').classList.add('has-image');
+        const btn = document.getElementById('btn-upload-next');
+        btn.disabled = false;
+        btn.textContent = 'CONTINUE TO PAYMENT';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  async function startGenerate() {
+    if (!uploadedFile || !selectedStyle) return;
+
+    document.getElementById('error-msg').classList.remove('visible');
+    goTo('screen-generating');
+
+    // Animated progress messages
+    const steps = [
+      [20, 'READING YOUR FACE...', 'Studying your features with ancestral eyes...'],
+      [40, 'APPLYING BEADWORK...', 'Adorning you in the colours of your people...'],
+      [60, 'CRAFTING YOUR CROWN...', 'Placing the mark of royalty upon you...'],
+      [80, 'PAINTING YOUR SPIRIT...', 'The ancestors are working...'],
+      [95, 'ALMOST READY...', 'Adding the final ancestral details...'],
+    ];
+
+    let stepIndex = 0;
+    const progressInterval = setInterval(() => {
+      if (stepIndex < steps.length) {
+        document.getElementById('progress-bar').style.width = steps[stepIndex][0] + '%';
+        document.getElementById('progress-text').textContent = steps[stepIndex][1];
+        document.getElementById('generating-sub').textContent = steps[stepIndex][2];
+        stepIndex++;
+      }
+    }, 4000);
+
+    try {
+      // Send to backend
+      const formData = new FormData();
+      formData.append('photo', uploadedFile);
+      formData.append('style', selectedStyle);
+
+      const response = await fetch('/generate', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      clearInterval(progressInterval);
+
+      if (data.success && data.imageUrl) {
+        document.getElementById('progress-bar').style.width = '100%';
+        document.getElementById('progress-text').textContent = 'YOUR PORTRAIT IS READY';
+        generatedImageUrl = Array.isArray(data.imageUrl) ? data.imageUrl[0] : data.imageUrl;
+        document.getElementById('result-portrait').src = generatedImageUrl;
+        setTimeout(() => goTo('screen-result'), 800);
+      } else {
+        throw new Error(data.error || 'Generation failed');
+      }
+
+    } catch (error) {
+      clearInterval(progressInterval);
+      console.error(error);
+      goTo('screen-payment');
+      const errEl = document.getElementById('error-msg');
+      errEl.textContent = 'Portrait generation failed: ' + error.message + '. Please try again.';
+      errEl.classList.add('visible');
+    }
+  }
+
+  function downloadPortrait() {
+    if (!generatedImageUrl) return;
+    const a = document.createElement('a');
+    a.href = generatedImageUrl;
+    a.download = 'mntu-omnyama-portrait.webp';
+    a.target = '_blank';
+    a.click();
+  }
+
+  function sharePortrait() {
+    if (navigator.share && generatedImageUrl) {
+      navigator.share({
+        title: 'Mntu Omnyama — My Ancestral Portrait',
+        text: 'I reclaimed my royalty with Mntu Omnyama by Isidima Vuka Sizwe Sakuthi 👑🌍',
+        url: window.location.href
+      });
+    } else {
+      alert('Copy this link to share: ' + window.location.href);
+    }
+  }
+</script>
+</body>
+</html>
